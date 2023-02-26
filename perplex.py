@@ -200,7 +200,7 @@ if __name__ == "__main__":
     if args.dry:
         print("Running in dry mode. Nothing will be changed on your filesystem")
     if args.database:
-        movies = build_db(args.plex, 1 if not args.series else 2)
+        movies = build_db(args.plex, args.metadatatype)
     elif args.load:
         print(("Loading metadata from " + args.load))
         movies = json.load(gzip.open(args.load))
