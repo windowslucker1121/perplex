@@ -30,12 +30,11 @@ def find_db(plex_dir, name):
                 return databasePath
 
     return None
-
-
-def build_db(plex_dir, movies={}):
+# metadatatype 1 = movies, 2 = series
+def build_db(plex_dir,metadatatype, movies={}):
     """ Build movie database from sqlite database """
 
-    print("Analyzing Plex database:")
+    print("[MOVIES] Analyzing Plex database:")
     dbfile = find_db(plex_dir, "com.plexapp.plugins.library.db")
 
     db = sqlite3.connect(dbfile)
@@ -105,7 +104,7 @@ def build_map(movies, dest,printDoubles, directoryToRunOn = "" ,mapping=[] ):
             template += ext
 
             if dest is None:
-                dest, garbage = str(_).rsplit("/", 1)
+                dest, garbage = str(_).rsplit("\\", 1)
             else:
                 dest = os.path.normpath(dest)
 
@@ -136,6 +135,8 @@ def rename(mapping,dry):
                      print(("%s\n    %s" % (old_name, new_name)))
                  else:
                      os.rename(old_name, new_name)
+             else:
+                 print("File is already at correct place: " + new_name)
          except Exception as e:
              print("Exception on file " + old_name + " : " + str(e))
 
@@ -173,10 +174,13 @@ if __name__ == "__main__":
                         help='load database of movie titles and files')
     parser.add_argument('--dry', action='store_true',
                         help='show dry run of what will happen')
+    parser.add_argument('--series', action='store_true',
+                        help='Use this parameter to enable Series Mode')
     parser.add_argument('--justRename', metavar='<dir>', type=str,
                         help='renames the original files instead of copying them - provide the <dir> to rename files in')
     parser.add_argument('--printDoubles', action='store_true',
                         help='Print double movies with locations if found')
+
 
 
     parser.set_defaults(dry=False)
@@ -188,7 +192,7 @@ if __name__ == "__main__":
 
 
     if args.plex:
-        movies = build_db(args.plex)
+        movies = build_db(args.plex, 1 if not args.series else 2)
     elif args.load:
         print(("Loading metadata from " + args.load))
         movies = json.load(gzip.open(args.load))
