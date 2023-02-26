@@ -30,11 +30,18 @@ def find_db(plex_dir, name):
                 return databasePath
 
     return None
-# metadatatype 1 = movies, 2 = series
+
 def build_db(plex_dir,metadatatype, movies={}):
     """ Build movie database from sqlite database """
+    mode = ""
+    if metadatatype is 1:
+        mode = "MOVIES"
+    elif metadatatype is 2:
+        mode = "SERIES"
+    else:
+        errorOut("Unimplemented metadatatype....")
 
-    print("[MOVIES] Analyzing Plex database:")
+    print("Analyzing Plex database:")
     dbfile = find_db(plex_dir, "com.plexapp.plugins.library.db")
 
     db = sqlite3.connect(dbfile)
@@ -164,7 +171,7 @@ if __name__ == "__main__":
     # Parse command-line arguments
 
     parser = argparse.ArgumentParser(description='Plex-based Movie Renamer.')
-    parser.add_argument('--plex', metavar='<dir>', type=str,
+    parser.add_argument('--database', metavar='<dir>', type=str,
                         help='set directory of Plex database.')
     parser.add_argument('--dest', metavar='<dir>', type=str,
                         help='copy and rename files to directory')
@@ -174,15 +181,14 @@ if __name__ == "__main__":
                         help='load database of movie titles and files')
     parser.add_argument('--dry', action='store_true',
                         help='show dry run of what will happen')
-    parser.add_argument('--series', action='store_true',
-                        help='Use this parameter to enable Series Mode')
+    parser.add_argument('--metadatatype', metavar='<file>', type=int,
+                        help='provide 1 for movies and 2 for series (STANDARD 1)')
     parser.add_argument('--justRename', metavar='<dir>', type=str,
                         help='renames the original files instead of copying them - provide the <dir> to rename files in')
     parser.add_argument('--printDoubles', action='store_true',
                         help='Print double movies with locations if found')
 
-
-
+    parser.set_defaults(metadatatype=1)
     parser.set_defaults(dry=False)
     parser.set_defaults(printDoubles=False)
     args = parser.parse_args()
@@ -193,13 +199,13 @@ if __name__ == "__main__":
 
     if args.dry:
         print("Running in dry mode. Nothing will be changed on your filesystem")
-    if args.plex:
+    if args.database:
         movies = build_db(args.plex, 1 if not args.series else 2)
     elif args.load:
         print(("Loading metadata from " + args.load))
         movies = json.load(gzip.open(args.load))
     else:
-        print("Error: Provide a Plex database or stored database.")
+        print("Error: Provide a Folder containing the Plex database with the --database argument or stored database.")
         sys.exit(-1)
 
     if args.save:
