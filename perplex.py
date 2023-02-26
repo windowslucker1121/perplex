@@ -34,9 +34,9 @@ def find_db(plex_dir, name):
 def build_db(plex_dir,metadatatype, movies={}):
     """ Build movie database from sqlite database """
     mode = ""
-    if metadatatype is 1:
+    if metadatatype == 1:
         mode = "MOVIES"
-    elif metadatatype is 2:
+    elif metadatatype == 2:
         mode = "SERIES"
     else:
         errorOut("Unimplemented metadatatype....")
@@ -200,7 +200,7 @@ if __name__ == "__main__":
     if args.dry:
         print("Running in dry mode. Nothing will be changed on your filesystem")
     if args.database:
-        movies = build_db(args.plex, args.metadatatype)
+        movies = build_db(args.database, args.metadatatype)
     elif args.load:
         print(("Loading metadata from " + args.load))
         movies = json.load(gzip.open(args.load))
