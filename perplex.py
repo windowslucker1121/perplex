@@ -191,6 +191,8 @@ if __name__ == "__main__":
         errorOut("Cant provide --dest and --justRename Args at the same time");
 
 
+    if args.dry:
+        print("Running in dry mode. Nothing will be changed on your filesystem")
     if args.plex:
         movies = build_db(args.plex, 1 if not args.series else 2)
     elif args.load:
